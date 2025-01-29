@@ -27,7 +27,8 @@ const Register = () => {
     setSuccess(""); // Limpa mensagens de sucesso
 
     axios
-      .post("https://backend-todo-g1iq.onrender.com/users/register", formData)
+      .post("https://backend-todo-g1iq.onrender.com/auth/register", formData)
+
       .then((response) => {
         setSuccess("Cadastro realizado com sucesso! Redirecionando para o login...");
         setTimeout(() => {
