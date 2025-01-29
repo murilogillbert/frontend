@@ -22,16 +22,25 @@ const Tasks = () => {
       const response = await axios.get("https://backend-todo-g1iq.onrender.com/todos", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      setTasks(response.data.map(task => ({
+  
+      // ✅ Converte `recurrenceDays` corretamente
+      const tasksFormatted = response.data.map(task => ({
         ...task,
-        recurrenceDays: task.recurrenceDays ? task.recurrenceDays.split(",").map(Number) : [],
-      })));
-    } catch(e) {
-      console.log("Error: " + e)
+        recurrenceDays: 
+          Array.isArray(task.recurrenceDays) 
+            ? task.recurrenceDays // Se já for array, mantém
+            : task.recurrenceDays 
+              ? String(task.recurrenceDays).split(",").map(Number) // Se for string, converte
+              : [], // Se for null ou undefined, transforma em array vazio
+      }));
+  
+      setTasks(tasksFormatted);
+    } catch (error) {
+      console.error("Erro ao carregar as tarefas:", error);
       setError("Erro ao carregar as tarefas.");
     }
   };
+  
 
   const handleSaveTask = async (task) => {
     const token = localStorage.getItem("accessToken");
