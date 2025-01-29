@@ -24,7 +24,7 @@ const Tasks = () => {
   // Função para buscar as tarefas do backend
   const fetchTasks = async (token) => {
     try {
-      const response = await axios.get("https://valiant-nurturing.up.railway.app/todos", {
+      const response = await axios.get("backend-todo-production-7edc.up.railway.app/todos", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -47,7 +47,7 @@ const Tasks = () => {
 
     try {
       const response = await axios.post(
-        "https://valiant-nurturing.up.railway.app/todos",
+        "backend-todo-production-7edc.up.railway.app/todos",
         { title: newTask },
         {
           headers: {
@@ -69,7 +69,7 @@ const Tasks = () => {
     const token = localStorage.getItem("accessToken");
 
     try {
-      await axios.delete(`https://valiant-nurturing.up.railway.app/todos/${taskId}`, {
+      await axios.delete(`backend-todo-production-7edc.up.railway.app/todos/${taskId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
