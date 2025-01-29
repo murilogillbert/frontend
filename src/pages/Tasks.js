@@ -27,7 +27,8 @@ const Tasks = () => {
         ...task,
         recurrenceDays: task.recurrenceDays ? task.recurrenceDays.split(",").map(Number) : [],
       })));
-    } catch {
+    } catch(e) {
+      console.log("Error: " + e)
       setError("Erro ao carregar as tarefas.");
     }
   };
