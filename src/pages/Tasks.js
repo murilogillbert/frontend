@@ -69,7 +69,7 @@ const Tasks = () => {
     const token = localStorage.getItem("accessToken");
 
     try {
-      await axios.delete(`backend-todo-production-7edc.up.railway.app/todos/${taskId}`, {
+      await axios.delete(`https://backend-todo-production-7edc.up.railway.app/todos/${taskId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

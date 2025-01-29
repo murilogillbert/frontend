@@ -27,7 +27,7 @@ const Register = () => {
     setSuccess(""); // Limpa mensagens de sucesso
 
     axios
-      .post("backend-todo-production-7edc.up.railway.app/users/register", formData)
+      .post("https://backend-todo-production-7edc.up.railway.app/users/register", formData)
       .then((response) => {
         setSuccess("Cadastro realizado com sucesso! Redirecionando para o login...");
         setTimeout(() => {
