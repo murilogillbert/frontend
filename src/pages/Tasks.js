@@ -52,49 +52,54 @@ const Tasks = () => {
       const response = await axios.get("https://backend-todo-g1iq.onrender.com/todos", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      // Ajusta a formatação da recorrência
+  
+      // 🔹 Garante que `recurrenceDays` seja sempre um array
       const tasksFormatted = response.data.map(task => ({
         ...task,
-        recurrenceDays: task.recurrenceDays ? task.recurrenceDays.split(",").map(Number) : [],
+        recurrenceDays: Array.isArray(task.recurrenceDays)
+          ? task.recurrenceDays
+          : task.recurrenceDays
+          ? task.recurrenceDays.split(",").map(Number)
+          : [], // Se for `null`, transforma em um array vazio
       }));
-
+  
       setTasks(tasksFormatted);
     } catch (err) {
       setError("Erro ao carregar as tarefas.");
       console.error(err);
     }
   };
+  
 
   // Cria ou edita uma tarefa
   const handleSaveTask = async () => {
     const token = localStorage.getItem("accessToken");
-
+  
     if (!newTask.title) {
       setError("O nome da tarefa não pode estar vazio.");
       return;
     }
-
+  
     const taskData = {
       ...newTask,
-      recurrenceDays: newTask.recurrenceDays.join(","), // Converte array para string
+      recurrenceDays: Array.isArray(newTask.recurrenceDays)
+        ? newTask.recurrenceDays.join(",") // Converte array para string
+        : "", // Se for `null` ou `undefined`, envia uma string vazia
     };
-
+  
     try {
       if (editingTaskId) {
-        // Atualiza uma tarefa existente
         await axios.patch(`https://backend-todo-g1iq.onrender.com/todos/${editingTaskId}`, taskData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setSuccess("Tarefa atualizada com sucesso!");
       } else {
-        // Cria uma nova tarefa
         await axios.post("https://backend-todo-g1iq.onrender.com/todos", taskData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setSuccess("Tarefa criada com sucesso!");
       }
-
+  
       setNewTask({ title: "", dueDate: null, category: "", reminder: false, recurrenceDays: [] });
       setEditingTaskId(null);
       fetchTasks(token);
@@ -103,7 +108,7 @@ const Tasks = () => {
       console.error(err);
     }
   };
-
+  
   // Exclui uma tarefa
   const handleDeleteTask = async (taskId) => {
     const token = localStorage.getItem("accessToken");
