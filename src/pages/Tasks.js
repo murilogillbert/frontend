@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Typography, Box, Button, TextField, Alert, IconButton, FormControlLabel, Switch, MenuItem, Select } from "@mui/material";
+import {
+  Container, Typography, Box, Button, TextField, Alert, IconButton,
+  FormControlLabel, Switch, MenuItem, Select
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AlarmOnIcon from "@mui/icons-material/AlarmOn";
@@ -20,13 +23,10 @@ const Tasks = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [editingTaskId, setEditingTaskId] = useState(null); // Para identificar qual tarefa está sendo editada
+  const [editingTaskId, setEditingTaskId] = useState(null);
   const navigate = useNavigate();
 
-  // Lista fixa de categorias
   const categories = ["Trabalho", "Pessoal", "Estudos"];
-
-  // Dias da semana para recorrência
   const daysOfWeek = [
     { label: "Dom", value: 0 },
     { label: "Seg", value: 1 },
@@ -46,47 +46,42 @@ const Tasks = () => {
     }
   }, [navigate]);
 
-  // Busca as tarefas do backend
   const fetchTasks = async (token) => {
     try {
       const response = await axios.get("https://backend-todo-g1iq.onrender.com/todos", {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
-      // 🔹 Garante que `recurrenceDays` seja sempre um array
+
       const tasksFormatted = response.data.map(task => ({
         ...task,
         recurrenceDays: Array.isArray(task.recurrenceDays)
           ? task.recurrenceDays
           : task.recurrenceDays
           ? task.recurrenceDays.split(",").map(Number)
-          : [], // Se for `null`, transforma em um array vazio
+          : [],
       }));
-  
+
       setTasks(tasksFormatted);
     } catch (err) {
       setError("Erro ao carregar as tarefas.");
       console.error(err);
     }
   };
-  
 
-  // Cria ou edita uma tarefa
   const handleSaveTask = async () => {
     const token = localStorage.getItem("accessToken");
-  
     if (!newTask.title) {
       setError("O nome da tarefa não pode estar vazio.");
       return;
     }
-  
+
     const taskData = {
       ...newTask,
-      recurrenceDays: Array.isArray(newTask.recurrenceDays)
-        ? newTask.recurrenceDays.join(",") // Converte array para string
-        : "", // Se for `null` ou `undefined`, envia uma string vazia
+      recurrenceDays: newTask.recurrenceDays.length > 0
+        ? newTask.recurrenceDays.map(String).join(",")
+        : "",
     };
-  
+
     try {
       if (editingTaskId) {
         await axios.patch(`https://backend-todo-g1iq.onrender.com/todos/${editingTaskId}`, taskData, {
@@ -99,7 +94,7 @@ const Tasks = () => {
         });
         setSuccess("Tarefa criada com sucesso!");
       }
-  
+
       setNewTask({ title: "", dueDate: null, category: "", reminder: false, recurrenceDays: [] });
       setEditingTaskId(null);
       fetchTasks(token);
@@ -108,8 +103,7 @@ const Tasks = () => {
       console.error(err);
     }
   };
-  
-  // Exclui uma tarefa
+
   const handleDeleteTask = async (taskId) => {
     const token = localStorage.getItem("accessToken");
 
@@ -125,7 +119,6 @@ const Tasks = () => {
     }
   };
 
-  // Preenche o formulário para edição de uma tarefa
   const handleEditTask = (task) => {
     setNewTask({
       title: task.title,
@@ -147,24 +140,39 @@ const Tasks = () => {
         {error && <Alert severity="error" style={{ marginBottom: "1rem" }}>{error}</Alert>}
         {success && <Alert severity="success" style={{ marginBottom: "1rem" }}>{success}</Alert>}
 
-        {/* Formulário de criação/edição */}
         <Box display="flex" flexDirection="column" gap="1rem" padding="1rem" border="1px solid #ddd" borderRadius="8px" marginBottom="2rem">
           <TextField label="Título" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} fullWidth required />
-          <DatePicker label="Data" value={newTask.dueDate} onChange={(date) => setNewTask({ ...newTask, dueDate: date })} renderInput={(params) => <TextField {...params} fullWidth />} />
+          <DatePicker
+            label="Data"
+            value={newTask.dueDate}
+            onChange={(date) => setNewTask({ ...newTask, dueDate: date })}
+            renderInput={(params) => <TextField {...params} fullWidth />}
+          />
           <TextField select label="Categoria" value={newTask.category} onChange={(e) => setNewTask({ ...newTask, category: e.target.value })} fullWidth>
             <MenuItem value="">Nenhuma</MenuItem>
             {categories.map((cat) => <MenuItem key={cat} value={cat}>{cat}</MenuItem>)}
           </TextField>
           <FormControlLabel control={<Switch checked={newTask.reminder} onChange={() => setNewTask({ ...newTask, reminder: !newTask.reminder })} />} label="Ativar Lembrete" />
-          <TextField select multiple label="Recorrência" value={newTask.recurrenceDays} onChange={(e) => setNewTask({ ...newTask, recurrenceDays: e.target.value })} fullWidth>
-            {daysOfWeek.map((day) => <MenuItem key={day.value} value={day.value}>{day.label}</MenuItem>)}
-          </TextField>
+          
+          <Select
+            multiple
+            value={newTask.recurrenceDays}
+            onChange={(e) => setNewTask({ ...newTask, recurrenceDays: e.target.value.map(Number) })}
+            renderValue={(selected) => selected.map(value => daysOfWeek.find(day => day.value === value)?.label).join(", ")}
+            fullWidth
+          >
+            {daysOfWeek.map((day) => (
+              <MenuItem key={day.value} value={day.value}>
+                {day.label}
+              </MenuItem>
+            ))}
+          </Select>
+
           <Button variant="contained" color="primary" onClick={handleSaveTask}>
             {editingTaskId ? "Atualizar Tarefa" : "Adicionar Tarefa"}
           </Button>
         </Box>
 
-        {/* Lista de Tarefas */}
         {tasks.length === 0 ? <Typography variant="body1">Nenhuma tarefa encontrada.</Typography> : tasks.map((task) => (
           <Box key={task.id} display="flex" justifyContent="space-between" alignItems="center" padding="1rem" border="1px solid #ddd" borderRadius="8px" marginBottom="1rem">
             <Typography variant="h6">{task.title}</Typography>
