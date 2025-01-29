@@ -1,2 +1,2 @@
-const API_URL = "http://localhost:3001/todos";
+const API_URL = "https://valiant-nurturing.up.railway.app/todos";
 export default API_URL;

@@ -23,7 +23,7 @@ const Login = () => {
     setError(""); // Limpar erro antes de enviar
 
     axios
-      .post("http://localhost:3001/auth/login", formData) // Ajuste para endpoint correto
+      .post("https://valiant-nurturing.up.railway.app/auth/login", formData) // Ajuste para endpoint correto
       .then((response) => {
         const { accessToken } = response.data; // JWT retornado pelo backend
 

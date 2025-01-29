@@ -27,7 +27,7 @@ const Register = () => {
     setSuccess(""); // Limpa mensagens de sucesso
 
     axios
-      .post("http://localhost:3001/users/register", formData)
+      .post("https://valiant-nurturing.up.railway.app/users/register", formData)
       .then((response) => {
         setSuccess("Cadastro realizado com sucesso! Redirecionando para o login...");
         setTimeout(() => {
