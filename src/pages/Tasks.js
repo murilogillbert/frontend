@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Typography, Box, Button, Alert } from "@mui/material";
 import TaskForm from "../components/Tasks/TaskForm";
+import TaskList from "../components/Tasks/TaskList";
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
-  const [showForm, setShowForm] = useState(false); // Controla a exibição do formulário
+  const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -56,6 +57,19 @@ const Tasks = () => {
     }
   };
 
+  const handleToggleComplete = async (taskId, completed) => {
+    const token = localStorage.getItem("accessToken");
+    
+    try {
+      await axios.patch(`https://backend-todo-g1iq.onrender.com/todos/${taskId}`, { completed }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchTasks(token);
+    } catch {
+      setError("Erro ao atualizar a tarefa.");
+    }
+  };
+
   return (
     <Container maxWidth="md" style={{ marginTop: "2rem" }}>
       <Typography variant="h4" gutterBottom>Minhas Tarefas</Typography>
@@ -69,18 +83,7 @@ const Tasks = () => {
 
       {showForm && <TaskForm onSave={handleSaveTask} taskToEdit={editingTask} />}
       
-      <Box marginTop="2rem">
-        {tasks.length === 0 ? (
-          <Typography variant="body1">Nenhuma tarefa encontrada.</Typography>
-        ) : (
-          tasks.map((task) => (
-            <Box key={task.id} padding="1rem" border="1px solid #ddd" borderRadius="8px" marginBottom="1rem">
-              <Typography variant="h6">{task.title}</Typography>
-              <Button variant="outlined" onClick={() => { setEditingTask(task); setShowForm(true); }}>Editar</Button>
-            </Box>
-          ))
-        )}
-      </Box>
+      <TaskList tasks={tasks} onEdit={setEditingTask} onToggleComplete={handleToggleComplete} />
     </Container>
   );
 };
