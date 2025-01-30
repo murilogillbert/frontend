@@ -44,8 +44,12 @@ const Tasks = () => {
 
   const handleSaveTask = async (task) => {
     const token = localStorage.getItem("accessToken");
-    const taskData = { ...task, recurrenceDays: task.recurrenceDays.join(",") };
-
+  
+    const taskData = {
+      ...task,
+      recurrenceDays: Array.isArray(task.recurrenceDays) ? task.recurrenceDays.join(",") : "",
+    };
+  
     try {
       if (editingTask) {
         await axios.patch(`https://backend-todo-g1iq.onrender.com/todos/${editingTask.id}`, taskData, {
@@ -58,15 +62,16 @@ const Tasks = () => {
         });
         setSuccess("Tarefa criada com sucesso!");
       }
-
+  
       setShowForm(false);
       setEditingTask(null);
       fetchTasks(token);
-    } catch {
+    } catch (error) {
       setError("Erro ao salvar a tarefa.");
+      console.error("Erro ao salvar a tarefa:", error.response?.data || error.message);
     }
   };
-
+  
   const handleToggleComplete = async (taskId, completed) => {
     const token = localStorage.getItem("accessToken");
     

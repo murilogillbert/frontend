@@ -49,9 +49,11 @@ const TaskForm = ({ onSave, taskToEdit }) => {
 
         <Select
           multiple
-          value={task.recurrenceDays}
+          value={task.recurrenceDays || []} // 🔥 Garante que não seja undefined/null
           onChange={(e) => setTask({ ...task, recurrenceDays: e.target.value.map(Number) })}
-          renderValue={(selected) => selected.map(value => daysOfWeek.find(day => day.value === value)?.label).join(", ")}
+          renderValue={(selected) =>
+            selected.map((value) => daysOfWeek.find((day) => day.value === value)?.label).join(", ")
+          }
           fullWidth
         >
           {daysOfWeek.map((day) => (
@@ -60,6 +62,7 @@ const TaskForm = ({ onSave, taskToEdit }) => {
             </MenuItem>
           ))}
         </Select>
+
 
         <Button variant="contained" color="primary" onClick={() => onSave(task)}>
           {taskToEdit ? "Atualizar" : "Criar"}
