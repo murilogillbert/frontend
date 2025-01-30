@@ -1,64 +1,91 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
 
-  // Verifica se o usuário está autenticado (com base no token no localStorage)
+  // Verifica se o usuário está autenticado
   const isAuthenticated = !!localStorage.getItem("accessToken");
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken"); // Remove o token do localStorage
-    navigate("/login"); // Redireciona para a página de login
+    localStorage.removeItem("accessToken"); // Remove o token
+    navigate("/login"); // Redireciona para login
   };
 
   return (
-    <AppBar position="static" color="primary">
+    <AppBar position="static" sx={{ backgroundColor: "#1976d2", padding: "0.5rem 0" }}>
       <Toolbar>
-        {/* Nome do app */}
+        {/* Nome do App - Clicável para Home */}
         <Typography
           variant="h6"
-          component="div"
+          component={RouterLink}
+          to="/"
           sx={{
             flexGrow: 1,
-            cursor: "pointer",
-            "&:hover": {
-              color: "yellow",
-            },
+            textDecoration: "none",
+            color: "white",
+            fontWeight: "bold",
+            "&:hover": { color: "yellow", transition: "0.3s" },
           }}
-          onClick={() => navigate("/")}
         >
-          Meu To-Do App
+          To-Do App
         </Typography>
 
-        {/* Links para as seções */}
+        {/* Links de navegação */}
         <Box sx={{ display: "flex", gap: 2 }}>
-          <Button color="inherit" href="#about">
+          <Button color="inherit" component="a" href="#about">
             Sobre
           </Button>
-          <Button color="inherit" href="#creator">
+          <Button color="inherit" component="a" href="#creator">
             Criador
           </Button>
         </Box>
 
-        {/* Botões para usuários autenticados ou não autenticados */}
+        {/* Botões Dinâmicos */}
         <Box sx={{ marginLeft: "auto", display: "flex", gap: 2 }}>
           {isAuthenticated ? (
             <>
-              <Button color="inherit" onClick={() => navigate("/tasks")}>
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/tasks"
+                sx={{ transition: "0.3s", "&:hover": { transform: "scale(1.05)" } }}
+              >
                 Minhas Tarefas
               </Button>
-              <Button variant="outlined" color="inherit" onClick={handleLogout}>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={handleLogout}
+                sx={{
+                  borderColor: "white",
+                  "&:hover": { backgroundColor: "white", color: "#1976d2" },
+                }}
+              >
                 Sair
               </Button>
             </>
           ) : (
             <>
-              <Button color="inherit" href="/login">
+              <Button
+                color="inherit"
+                component={RouterLink}
+                to="/login"
+                sx={{ transition: "0.3s", "&:hover": { transform: "scale(1.05)" } }}
+              >
                 Login
               </Button>
-              <Button variant="outlined" color="inherit" href="/register">
+              <Button
+                variant="outlined"
+                color="inherit"
+                component={RouterLink}
+                to="/register"
+                sx={{
+                  borderColor: "white",
+                  "&:hover": { backgroundColor: "white", color: "#1976d2" },
+                }}
+              >
                 Cadastro
               </Button>
             </>
