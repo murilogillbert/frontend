@@ -1,13 +1,12 @@
-// src/pages/Tasks.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Container, Typography, Box, Button, Alert } from "@mui/material";
 import TaskForm from "../components/Tasks/TaskForm";
 import TaskList from "../components/Tasks/TaskList";
+import { parseISO } from "date-fns"; // ✅ Importado para converter strings de data
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
-  const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -22,34 +21,34 @@ const Tasks = () => {
       const response = await axios.get("https://backend-todo-g1iq.onrender.com/todos", {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
-      // ✅ Converte `recurrenceDays` corretamente
+
+      // ✅ Converte `dueDate` corretamente e garante `recurrenceDays` como array
       const tasksFormatted = response.data.map(task => ({
         ...task,
+        dueDate: task.dueDate ? parseISO(task.dueDate) : null, // 🔥 Converte string para Date
         recurrenceDays: 
           Array.isArray(task.recurrenceDays) 
-            ? task.recurrenceDays // Se já for array, mantém
+            ? task.recurrenceDays 
             : task.recurrenceDays 
-              ? String(task.recurrenceDays).split(",").map(Number) // Se for string, converte
-              : [], // Se for null ou undefined, transforma em array vazio
+              ? String(task.recurrenceDays).split(",").map(Number) 
+              : [],
       }));
-  
+
       setTasks(tasksFormatted);
     } catch (error) {
       console.error("Erro ao carregar as tarefas:", error);
       setError("Erro ao carregar as tarefas.");
     }
   };
-  
 
   const handleSaveTask = async (task) => {
     const token = localStorage.getItem("accessToken");
-  
+
     const taskData = {
       ...task,
       recurrenceDays: Array.isArray(task.recurrenceDays) ? task.recurrenceDays.join(",") : "",
     };
-  
+
     try {
       if (editingTask) {
         await axios.patch(`https://backend-todo-g1iq.onrender.com/todos/${editingTask.id}`, taskData, {
@@ -62,8 +61,7 @@ const Tasks = () => {
         });
         setSuccess("Tarefa criada com sucesso!");
       }
-  
-      setShowForm(false);
+
       setEditingTask(null);
       fetchTasks(token);
     } catch (error) {
@@ -71,10 +69,10 @@ const Tasks = () => {
       console.error("Erro ao salvar a tarefa:", error.response?.data || error.message);
     }
   };
-  
+
   const handleToggleComplete = async (taskId, completed) => {
     const token = localStorage.getItem("accessToken");
-    
+
     try {
       await axios.patch(`https://backend-todo-g1iq.onrender.com/todos/${taskId}`, { completed }, {
         headers: { Authorization: `Bearer ${token}` },
@@ -92,13 +90,13 @@ const Tasks = () => {
       {error && <Alert severity="error">{error}</Alert>}
       {success && <Alert severity="success">{success}</Alert>}
 
-      <Button variant="contained" color="primary" onClick={() => setShowForm(true)}>
-        Adicionar Nova Tarefa
-      </Button>
-
-      {showForm && <TaskForm onSave={handleSaveTask} taskToEdit={editingTask} />}
-      
-      <TaskList tasks={tasks} onEdit={setEditingTask} onToggleComplete={handleToggleComplete} />
+      <TaskList 
+        tasks={tasks} 
+        onEdit={setEditingTask} 
+        onToggleComplete={handleToggleComplete} 
+        onSave={handleSaveTask} // ✅ Passando handleSaveTask corretamente
+        editingTask={editingTask} // ✅ Passando a tarefa sendo editada
+      />
     </Container>
   );
 };
