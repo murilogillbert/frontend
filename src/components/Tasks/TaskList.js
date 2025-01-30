@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Typography, Button, MenuItem, Select } from "@mui/material";
-import { format, addDays, subDays, startOfWeek, endOfWeek } from "date-fns";
+import { format, addDays, subDays, startOfWeek, endOfWeek,parseISO } from "date-fns";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm"; // ✅ Importando o formulário
 
@@ -12,8 +12,10 @@ const TaskList = ({ tasks, onEdit, onToggleComplete, onSave }) => {
   // Define o intervalo baseado no filtro selecionado
   const getFilteredTasks = () => {
     return tasks.filter(task => {
-      const taskDate = new Date(task.dueDate);
-      
+      const taskDate = task.dueDate ? parseISO(task.dueDate) : null; // ✅ Converte string para Date
+  
+      if (!taskDate) return false; // Evita erros se a data for null
+  
       if (viewMode === "day") {
         return format(taskDate, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd");
       } else {
