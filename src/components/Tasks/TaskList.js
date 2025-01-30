@@ -1,13 +1,13 @@
-// src/components/Tasks/TaskList.js
 import React, { useState } from "react";
-import { Box, Typography, Button, MenuItem, Select, IconButton, Checkbox } from "@mui/material";
+import { Box, Typography, Button, MenuItem, Select } from "@mui/material";
 import { format, addDays, subDays, startOfWeek, endOfWeek } from "date-fns";
-import EditIcon from "@mui/icons-material/Edit";
 import TaskItem from "./TaskItem";
+import TaskForm from "./TaskForm"; // ✅ Importando o formulário
 
-const TaskList = ({ tasks, onEdit, onToggleComplete }) => {
-  const [viewMode, setViewMode] = useState("week"); // "day" ou "week"
+const TaskList = ({ tasks, onEdit, onToggleComplete, onSave }) => {
+  const [viewMode, setViewMode] = useState("week");
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [editingTask, setEditingTask] = useState(null); // ✅ Estado para a tarefa sendo editada
 
   // Define o intervalo baseado no filtro selecionado
   const getFilteredTasks = () => {
@@ -33,13 +33,14 @@ const TaskList = ({ tasks, onEdit, onToggleComplete }) => {
           <MenuItem value="week">Exibir Semana</MenuItem>
         </Select>
 
-        {/* Botões para alterar período */}
         <Box>
           <Button onClick={() => setSelectedDate(viewMode === "day" ? subDays(selectedDate, 1) : subDays(selectedDate, 7))}>
             {"<"} Anterior
           </Button>
           <Typography component="span" margin="0 1rem">
-            {viewMode === "day" ? format(selectedDate, "dd/MM/yyyy") : `${format(startOfWeek(selectedDate), "dd/MM")} - ${format(endOfWeek(selectedDate), "dd/MM")}`}
+            {viewMode === "day"
+              ? format(selectedDate, "dd/MM/yyyy")
+              : `${format(startOfWeek(selectedDate), "dd/MM")} - ${format(endOfWeek(selectedDate), "dd/MM")}`}
           </Typography>
           <Button onClick={() => setSelectedDate(viewMode === "day" ? addDays(selectedDate, 1) : addDays(selectedDate, 7))}>
             Próximo {">"}
@@ -52,7 +53,25 @@ const TaskList = ({ tasks, onEdit, onToggleComplete }) => {
         <Typography variant="body1">Nenhuma tarefa encontrada.</Typography>
       ) : (
         getFilteredTasks().map(task => (
-          <TaskItem key={task.id} task={task} onEdit={onEdit} onToggleComplete={onToggleComplete} />
+          <Box key={task.id}>
+            {/* Componente de Item da Tarefa */}
+            <TaskItem
+              task={task}
+              onEdit={() => setEditingTask(task)} // ✅ Define a tarefa em edição
+              onToggleComplete={onToggleComplete}
+            />
+
+            {/* Formulário aparece abaixo da tarefa em edição */}
+            {editingTask?.id === task.id && (
+              <TaskForm
+                taskToEdit={editingTask}
+                onSave={(updatedTask) => {
+                  onSave(updatedTask);
+                  setEditingTask(null); // ✅ Fecha o formulário após salvar
+                }}
+              />
+            )}
+          </Box>
         ))
       )}
     </Box>
