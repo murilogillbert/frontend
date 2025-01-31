@@ -42,7 +42,7 @@ const TaskForm = ({ onSave, taskToEdit }) => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box 
+      <Box
         display="flex"
         flexDirection="column"
         gap="1rem"
@@ -93,7 +93,11 @@ const TaskForm = ({ onSave, taskToEdit }) => {
         <Select
           multiple
           value={task.recurrenceDays || []}
-          onChange={(e) => handleChange("recurrenceDays", e.target.value.map(Number))}
+          onChange={(e) => {
+            const selectedDays = e.target.value.map(Number);
+            console.log("Dias de recorrência selecionados:", selectedDays); // ✅ LOG para depuração
+            handleChange("recurrenceDays", selectedDays);
+          }}
           renderValue={(selected) =>
             selected.map((value) => daysOfWeek.find((day) => day.value === value)?.label).join(", ")
           }
@@ -110,11 +114,15 @@ const TaskForm = ({ onSave, taskToEdit }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => onSave(task)}
-          disabled={!task.title} // 🔥 Previne envio sem título
+          onClick={() => {
+            console.log("Dados antes de enviar para onSave:", task); // ✅ LOG para verificar o que está sendo salvo
+            onSave(task);
+          }}
+          disabled={!task.title}
         >
           {taskToEdit ? "Atualizar" : "Criar"}
         </Button>
+
       </Box>
     </LocalizationProvider>
   );
