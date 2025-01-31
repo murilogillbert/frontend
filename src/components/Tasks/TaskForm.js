@@ -90,6 +90,7 @@ const TaskForm = ({ onSave, taskToEdit }) => {
         />
 
         {/* Seletor de Dias de Recorrência */}
+        {/*
         <Select
           multiple
           value={task.recurrenceDays || []}
@@ -109,7 +110,7 @@ const TaskForm = ({ onSave, taskToEdit }) => {
             </MenuItem>
           ))}
         </Select>
-
+        */}
         {/* Botão de Salvar */}
         <Button
           variant="contained"
